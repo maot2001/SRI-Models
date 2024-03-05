@@ -41,6 +41,7 @@ def Evaluations(docs, query):
     dict(metrics): Values of metrics
 
     """
+    docs_id=[tupla[1] for tupla in docs]
     route = os.getcwd()
     route = os.path.join(route, 'data')
 
@@ -60,14 +61,14 @@ def Evaluations(docs, query):
     if query_id in data:
         relevants=data[query_id]['relevants']
 
-        precision_value = precision(relevants, docs)
-        recall_value = recall(relevants, docs)
+        precision_value = precision(relevants, docs_id)
+        recall_value = recall(relevants, docs_id)
         f_value=f_measure(precision_value,recall_value)
-        r_precision_value=r_precision(relevants,docs)
-        failure_value=failure_ratio(relevants,docs)
+        r_precision_value=r_precision(relevants,docs_id)
+        failure_value=failure_ratio(relevants,docs_id)
         return {"precision": precision_value,"recall":recall_value,
                 "r_precision":r_precision_value,"f_value":f_value,
                 "failure_ratio":failure_value}
     return None
 # Example of use
-print(Evaluations(["5","7","9","91","19","144","181",],"what problems of heat conduction in composite slabs have been solved so\nfar ."))
+print(Evaluations([("name","5"),("name","7"),("name","9"),("name","91"),("name","19"),("name","144"),("name","181")],"what problems of heat conduction in composite slabs have been solved so\nfar ."))
