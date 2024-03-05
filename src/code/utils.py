@@ -76,12 +76,11 @@ def json_to_doc():
 
 #this may not use it
 def add_and_between_words(phrase):
-    words = phrase.split()
     new_phrase = []
-    for i in range(len(words) - 1):
-        new_phrase.append(words[i])
-        if words[i] != "and" and words[i] != "or" and words[i]!="not" and words[i + 1] != "and" and words[i + 1] != "or":
+    for i in range(len(phrase) - 1):
+        new_phrase.append(phrase[i])
+        if phrase[i] != "and" and phrase[i] != "or" and phrase[i]!="not" and phrase[i + 1] != "and" and phrase[i + 1] != "or":
             new_phrase.append("and")
-    new_phrase.append(words[-1])
-    return " ".join(new_phrase)
+    new_phrase.append(phrase[-1])
+    return new_phrase
 

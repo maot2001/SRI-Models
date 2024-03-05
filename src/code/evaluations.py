@@ -2,8 +2,11 @@ import json
 import os
 import query_lsi
 import utils
+import threading
+import boolean
 Corpus_Len=1400
 
+# Metrics
 def precision(relevants, recovered):
     if len(recovered) == 0:
         return 0
@@ -22,12 +25,23 @@ def f_measure(prec, rec):
 
 def r_precision(relevants, recovered):
     r = len(relevants)
-    return len(set(recovered).intersection(relevants)) / r
+    if len(relevants) <= r:
+        return len(set(recovered).intersection(relevants)) / len(relevants)
+    return len(set(recovered).intersection(relevants[:r])) / r
 
 def failure_ratio(relevants, recovered):
     docs_irrelevant_recovered = set(recovered) - set(relevants)
     docs_irrelevant_total = Corpus_Len - len(relevants)
     return len(docs_irrelevant_recovered) / docs_irrelevant_total
+
+
+
+def model(queries, indexes, data_words, data_docs, method, metric):
+    for i in indexes:
+        query = queries[f'{i}']
+        result = method(query, data_words, data_docs)
+        values = Evaluations(result, i)
+        for i in range(5): metric[i].append(values[i])
 
 def metrics():
     """
@@ -41,11 +55,20 @@ def metrics():
 
     with open(os.path.join(route, 'queries.json'), "r") as file:
         queries=json.load(file)
+    bool_metric = [[] for i in range(5)]
 
-    for i in range(1, len(queries) + 1):
-        query = queries[f'{i}']
-        result = query_lsi.query_lsi(query, data_words, data_docs)
-        print(Evaluations(result, i))
+    lsi_metric = [[] for i in range(5)]
+    bool_metric = [[] for i in range(5)]
+    thread1 = threading.Thread(target=model, 
+                               args=(queries, range(1, len(queries) + 1), data_words, data_docs, query_lsi.query_lsi, lsi_metric))
+    thread1.start()
+
+    thread2 = threading.Thread(target=model, 
+                               args=(queries, range(1, len(queries) + 1), data_words, data_docs, boolean.get_docs_from_ids, bool_metric))
+    thread2.start()
+
+    thread1.join()
+    thread2.join()
 
 
 def Evaluations(docs, index):
@@ -77,7 +100,7 @@ def Evaluations(docs, index):
         f_value=f_measure(precision_value,recall_value)
         r_precision_value=r_precision(relevants,docs_id)
         failure_value=failure_ratio(relevants,docs_id)
-        return {"precision": precision_value,"recall":recall_value,
-                "r_precision":r_precision_value,"f_value":f_value,
-                "failure_ratio":failure_value}
+        return [ precision_value, recall_value, r_precision_value, f_value, failure_value ]
     return None
+
+metrics()

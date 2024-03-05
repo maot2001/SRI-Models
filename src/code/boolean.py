@@ -11,17 +11,8 @@ data_words = json_to_words()
 data_docs = json_to_doc()
 nlp = spacy.load("en_core_web_sm")
 
-def query_to_dnf(query):
-    """Replace each boolean operator in natural language for a boolean operator in matematician language and then converts that to sympify expression 
-
-    Args:
-        query (str): Natural language query
-
-    Returns:
-        sympify: DNF query
-    """
+def process_query(query):
     processed_query = ""
-    query = [token.lemma_.lower() for token in nlp(query) if token.is_alpha or token.text=='(' or token.text ==')']
     for i in query:
         if i == "and":
             processed_query=processed_query + " & "
@@ -31,8 +22,26 @@ def query_to_dnf(query):
             processed_query =processed_query + " ~ "
         else:
             processed_query = processed_query + " " + i
-    query_expr = sympify(processed_query, evaluate=False)
-    query_dnf = to_dnf(query_expr, simplify=True)
+    return processed_query
+
+def query_to_dnf(query):
+    """Replace each boolean operator in natural language for a boolean operator in matematician language and then converts that to sympify expression 
+
+    Args:
+        query (str): Natural language query
+
+    Returns:
+        sympify: DNF query
+    """
+    query = [token.lemma_.lower() for token in nlp(query) if token.is_alpha or token.text=='(' or token.text ==')']
+    try:
+        processed_query = process_query(query)
+        query_expr = sympify(processed_query, evaluate=False)
+    except:
+        new_query = add_and_between_words(query)
+        processed_query = process_query(new_query)
+        query_expr = simplify(processed_query, evaluate=False)
+    query_dnf = to_dnf(query_expr, simplify=True, force=True)
 
     return query_dnf
 
@@ -79,7 +88,7 @@ def get_matching_docs(query, data_words):
     union_docs = set().union(*all_docs)
     return (list(union_docs))
     
-def get_docs_from_ids(ids, data_docs):
+def get_docs_from_ids(query, data_words, data_docs):
     """Return the documents from id(id)
 
     Args:
@@ -89,6 +98,7 @@ def get_docs_from_ids(ids, data_docs):
     Returns:
         list<str>: documents that match with the given ids
     """
+    ids = get_matching_docs(query, data_words)
     names = []
     true_ids = []
     for id in ids:
