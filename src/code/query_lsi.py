@@ -22,7 +22,7 @@ def query_lsi(query, data_words, data_docs):
 
     # Organize and return
     all = sorted(all, key=lambda x: x[1], reverse=True)
-    return [(data_docs[doc[0]]['name'], data_docs[doc[0]]['id']) for doc in all]
+    return [(data_docs[doc[0]].name, data_docs[doc[0]].id) for doc in all]
 
 def recive_query_lsi(query, data_words, docs):
     """Resolve the query
@@ -44,7 +44,7 @@ def recive_query_lsi(query, data_words, docs):
     for word in words:
         aux = binary_search(word.word, data_words)
         if aux == -1: continue
-        word.idf = aux['idf']
+        word.idf = aux.idf
         tf_idf_calculate(word, max_vals, 1, 1, word.idf)
         query_vector.append(word.docs[0])
         found_words.append(aux)
@@ -52,8 +52,8 @@ def recive_query_lsi(query, data_words, docs):
     # Indexing tf-idf values
     matrix = np.zeros((docs, len(found_words)))
     for i in range(len(found_words)):
-        for doc in found_words[i]['docs']:
-            matrix[int(doc)][i] = found_words[i]['docs'][doc]
+        for doc in found_words[i].docs:
+            matrix[int(doc)][i] = found_words[i].docs[doc]
 
     # Create and train an initial TruncatedSVD model of dimension equal to the number of words
     lsa_model = TruncatedSVD(n_components=len(found_words))
@@ -78,7 +78,7 @@ def recive_query_lsi(query, data_words, docs):
 
     # Filter items based on threshold
     for i in range(len(similarity[0])):
-        if similarity[0][i] < max(.2, 1/len(found_words) - .1): continue
+        if similarity[0][i] < max(.5, 1/len(found_words) - .1): continue
         result.append((i, similarity[0][i]))
 
     return result

@@ -27,9 +27,9 @@ def binary_search(word, data):
   while left <= right:
     mid = left + (right - left) // 2
 
-    if data[mid]['word'] == word:
+    if data[mid].word == word:
       return data[mid]
-    elif data[mid]['word'] < word:
+    elif data[mid].word < word:
       left = mid + 1
     else:
       right = mid - 1

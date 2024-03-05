@@ -1,5 +1,7 @@
 import json
 import os
+import query_lsi
+import utils
 Corpus_Len=1400
 
 def precision(relevants, recovered):
@@ -23,13 +25,30 @@ def r_precision(relevants, recovered):
     return len(set(recovered).intersection(relevants)) / r
 
 def failure_ratio(relevants, recovered):
-    documentos_irrelevantes_recuperados = set(recovered) - set(relevants)
-    documentos_irrelevantes_totales = Corpus_Len - len(relevants)
-    return len(documentos_irrelevantes_recuperados) / documentos_irrelevantes_totales
+    docs_irrelevant_recovered = set(recovered) - set(relevants)
+    docs_irrelevant_total = Corpus_Len - len(relevants)
+    return len(docs_irrelevant_recovered) / docs_irrelevant_total
+
+def metrics():
+    """
+    Automatic queries and metrics collection
+    """
+    data_words = utils.json_to_words()
+    data_docs = utils.json_to_doc()
+
+    route = os.getcwd()
+    route = os.path.join(route, 'data')
+
+    with open(os.path.join(route, 'queries.json'), "r") as file:
+        queries=json.load(file)
+
+    for i in range(1, len(queries) + 1):
+        query = queries[f'{i}']
+        result = query_lsi.query_lsi(query, data_words, data_docs)
+        print(Evaluations(result, i))
 
 
-
-def Evaluations(docs, query):
+def Evaluations(docs, index):
     """
     Evaluates the results with the expected results
     
@@ -41,26 +60,18 @@ def Evaluations(docs, query):
     dict(metrics): Values of metrics
 
     """
-    docs_id=[tupla[1] for tupla in docs]
+    docs_id=[tuple[1] for tuple in docs]
+
     route = os.getcwd()
     route = os.path.join(route, 'data')
 
     with open(os.path.join(route, 'relevant_doc.json'), "r") as file:
         data=json.load(file)
 
-    with open(os.path.join(route, 'queries.json'), "r") as file:
-        queries=json.load(file)
+    query_id=f'{index}'
 
-    query_id=''
-
-    for id,name in queries.items():
-        if name==query : 
-            query_id=id
-            break
-    
     if query_id in data:
         relevants=data[query_id]['relevants']
-
         precision_value = precision(relevants, docs_id)
         recall_value = recall(relevants, docs_id)
         f_value=f_measure(precision_value,recall_value)
@@ -70,5 +81,3 @@ def Evaluations(docs, query):
                 "r_precision":r_precision_value,"f_value":f_value,
                 "failure_ratio":failure_value}
     return None
-# Example of use
-print(Evaluations([("name","5"),("name","7"),("name","9"),("name","91"),("name","19"),("name","144"),("name","181")],"what problems of heat conduction in composite slabs have been solved so\nfar ."))

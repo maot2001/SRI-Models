@@ -50,6 +50,7 @@ def get_clean_query(query_dnf):
     tup_query = re.findall(r'\((.*?)\)|(\w+)', str(query_dnf))
     conjuntive_query = [re.split(r'\s*&\s*', clause[0]) if clause[0] else [clause[1]] for clause in tup_query]
     return conjuntive_query
+
 def get_matching_docs(query, data_words):
     """Returns the ids of matching documents
 
