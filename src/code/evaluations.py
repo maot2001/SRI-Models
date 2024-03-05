@@ -69,5 +69,5 @@ def Evaluations(docs, query):
                 "r_precision":r_precision_value,"f_value":f_value,
                 "failure_ratio":failure_value}
     return None
-
+# Example of use
 print(Evaluations(["5","7","9","91","19","144","181",],"what problems of heat conduction in composite slabs have been solved so\nfar ."))
