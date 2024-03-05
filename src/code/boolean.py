@@ -12,7 +12,7 @@ data_docs = json_to_doc()
 nlp = spacy.load("en_core_web_sm")
 
 def process_query(query):
-    processed_query = ""
+  processed_query = ""
     for i in query:
         if i == "and":
             processed_query=processed_query + " & "
