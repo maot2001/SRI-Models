@@ -22,7 +22,7 @@ words_json = json.dumps([word.to_dict() for word in words], indent=4, ensure_asc
 with open(os.path.join(route, 'words.json'), 'w', encoding='utf-8') as archivo_json:
     archivo_json.write(words_json)
 
-docs = [Docs(doc.title, doc.text) for doc in dataset.docs_iter()]
+docs = [Docs(doc.title, doc.text, doc.doc_id) for doc in dataset.docs_iter()]
 docs_json = json.dumps([doc.to_dict() for doc in docs], indent=4, ensure_ascii=False)
 with open(os.path.join(route, 'docs.json'), 'w', encoding='utf-8') as archivo_json:
     archivo_json.write(docs_json)

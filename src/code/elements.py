@@ -1,10 +1,12 @@
 class Docs:
-    def __init__(self, name, text):
-        self.name = name
-        self.text = text
+    def __init__(self, name, text, id):
+        self.name = name.replace(' .', '.').replace('\n', ' ')
+        self.text = text.replace(' .\n', '.').replace('.\n', '.').replace('\n', ' ')
+        self.id = id
 
     def to_dict(self):
         return {
+            'id': self.id,
             'name': self.name,
             'text': self.text
         }
