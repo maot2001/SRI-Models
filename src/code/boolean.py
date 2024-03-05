@@ -6,8 +6,11 @@ import spacy
 import nltk
 import itertools
 from sympy import sympify,simplify,  to_dnf, Not, And, Or, logic
+
 data_words = json_to_words()
+data_docs = json_to_doc()
 nlp = spacy.load("en_core_web_sm")
+
 def query_to_dnf(query):
     """Replace each boolean operator in natural language for a boolean operator in matematician language and then converts that to sympify expression 
 
@@ -47,11 +50,12 @@ def get_clean_query(query_dnf):
     tup_query = re.findall(r'\((.*?)\)|(\w+)', str(query_dnf))
     conjuntive_query = [re.split(r'\s*&\s*', clause[0]) if clause[0] else [clause[1]] for clause in tup_query]
     return conjuntive_query
-def get_matching_docs(query, data_words, data_docs):
-    """_summary_
+def get_matching_docs(query, data_words):
+    """Returns the ids of matching documents
 
     Args:
-        query (_type_): _description_
+        query (str): query
+        data_words (list<words>): list of all words
     """
     matching_docs = []
     conjuntive_query = get_clean_query(query_to_dnf(query))
@@ -74,12 +78,20 @@ def get_matching_docs(query, data_words, data_docs):
     union_docs = set().union(*all_docs)
     return (list(union_docs))
     
+def get_docs_from_ids(ids, data_docs):
+    """Return the documents from id(id)
 
-        
+    Args:
+        ids (list<int>): Each document id
+        data_docs (_type_): All documents
 
-x = get_matching_docs("add and not accuracy",data_words,[])
-#y = query_to_dnf("ablate and ablating")
-#print(str(y))
-print(x)
+    Returns:
+        list<str>: documents that match with the given ids
+    """
+    names = []
+    true_ids = []
+    for id in ids:
+        names.append(data_docs[id].name)
+        true_ids.append(data_docs[id].id)
+    return names
 
-# "ablate and ablating" con este ejemplo me doy cuenta que estoy perdiendo informacion si lemantizo
