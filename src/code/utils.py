@@ -69,7 +69,7 @@ def json_to_doc():
     docs = []
 
     for doc in content:
-        aux_doc = Docs(doc['name'], doc['text'])
+        aux_doc = Docs(doc['name'], doc['text'], doc['id'])
         docs.append(aux_doc)
 
     return docs  

@@ -93,5 +93,7 @@ def get_docs_from_ids(ids, data_docs):
     for id in ids:
         names.append(data_docs[id].name)
         true_ids.append(data_docs[id].id)
-    return names
+    return (names, true_ids)
+
+
 
