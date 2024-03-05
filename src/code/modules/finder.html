@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang='en' class=''>
+  <head>
+    <meta charset='UTF-8'>
+    <title>Search Bar Demo</title>
+    <style>
+        body {
+        background-color: gray;
+        margin: 200px 40%;
+      }
+      
+      form {
+        background-color: white;
+        width: 300px;
+        height: 44px;
+        border-radius: 5px;
+
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+      }
+
+      input {
+        all: unset;
+        font: 16px system-ui;
+        color: black;
+        height: 100%;
+        width: 100%;
+        padding: 6px 10px;
+      }
+
+      ::placeholder {
+        color: gray;
+        opacity: 0.7; 
+      }
+
+      svg {
+        color: #fff;
+        fill: currentColor;
+        width: 24px;
+        height: 24px;
+        padding: 10px;
+      }
+
+      button {
+        all: unset;
+        color: black;
+        cursor: pointer;
+        width: 44px;
+        height: 44px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="title">
+        {{project_name}}
+    </h1>
+    <form role="search" id="form">
+      <input type="search" id="query" name="query" placeholder="Write the query..." aria-label="Search through documents">
+      <button onclick="send_query()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+    </button>
+    </form>
+    <div id="results">Results</div>
+    <script>
+
+function send_query() {
+    var query = document.getElementById("query").value;
+    fetch("/hello_function/", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({ query: query })
+    })
+    .then(response => response.json())
+    .then(data => {
+      var results = data.result
+                    document.getElementById("results").innerHTML = ""
+                    document.getElementById("results").innerHTML += "<p>" + "AAAA" + "<br>" + "BBBB" + "<br>" + "CCCC" + "</p> <br><br>"
+                    
+                  });
+}
+    </script>
+  </body>
+</html>
