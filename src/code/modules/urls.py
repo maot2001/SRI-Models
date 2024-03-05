@@ -22,5 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',views.finder),
     path('hello_function/',views.hello_function, name="hello_function"),
+    path('result/', views.result, name='result')
     
 ]

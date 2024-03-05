@@ -11,6 +11,8 @@ data_words = json_to_words()
 data_docs = json_to_doc()
 nlp = spacy.load("en_core_web_sm")
 
+x = " B | (C & D) & EXXX & FXXX "
+print(to_dnf(x,simplify=True))
 def query_to_dnf(query):
     """Replace each boolean operator in natural language for a boolean operator in matematician language and then converts that to sympify expression 
 

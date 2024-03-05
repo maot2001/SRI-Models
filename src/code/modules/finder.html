@@ -1,87 +1,175 @@
-<!DOCTYPE html>
-<html lang='en' class=''>
-  <head>
-    <meta charset='UTF-8'>
-    <title>Search Bar Demo</title>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRI-Models</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        body {
-        background-color: gray;
-        margin: 200px 40%;
-      }
-      
-      form {
-        background-color: white;
-        width: 300px;
-        height: 44px;
-        border-radius: 5px;
+        #searchButton {
+            display: flex;
+            align-items: center;
+        }
 
-        display:flex;
-        flex-direction:row;
-        align-items:center;
-      }
+        #searchButton svg {
+            margin-top: 2px;
+        }
 
-      input {
-        all: unset;
-        font: 16px system-ui;
-        color: black;
-        height: 100%;
-        width: 100%;
-        padding: 6px 10px;
-      }
-
-      ::placeholder {
-        color: gray;
-        opacity: 0.7; 
-      }
-
-      svg {
-        color: #fff;
-        fill: currentColor;
-        width: 24px;
-        height: 24px;
-        padding: 10px;
-      }
-
-      button {
-        all: unset;
-        color: black;
-        cursor: pointer;
-        width: 44px;
-        height: 44px;
-      }
-    </style>
-  </head>
-  <body>
-    <h1 id="title">
-        {{project_name}}
-    </h1>
-    <form role="search" id="form">
-      <input type="search" id="query" name="query" placeholder="Write the query..." aria-label="Search through documents">
-      <button onclick="send_query()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-    </button>
-    </form>
-    <div id="results">Results</div>
-    <script>
-
-function send_query() {
-    var query = document.getElementById("query").value;
-    fetch("/hello_function/", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            "X-CSRFToken": "{{ csrf_token }}"
-        },
-        body: JSON.stringify({ query: query })
-    })
-    .then(response => response.json())
-    .then(data => {
-      var results = data.result
-                    document.getElementById("results").innerHTML = ""
-                    document.getElementById("results").innerHTML += "<p>" + "AAAA" + "<br>" + "BBBB" + "<br>" + "CCCC" + "</p> <br><br>"
-                    
-                  });
+        #selectorContainer {
+            margin-top: 20px; /* Ajusta el margen según sea necesario */
+        }
+        .switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
 }
-    </script>
-  </body>
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+body{
+  font-family:'Courier New', Courier, monospace;
+  font-weight: bold;
+  font: bold;
+}
+.divider {
+  border-top: 2px solid #2196F3;
+  margin: 20px 0;
+  width: 100%;
+}
+    </style>
+</head>
+
+<body class="bg-blue-100">
+    <div class="container mx-auto p-4 mt-4">
+        <div class="flex justify-center">
+            <h2 class="text-2xl font-bold mb-4">{{mensaje}}</h2>
+        </div>
+        <form id="Query" class="mb-4">
+            {% csrf_token %}
+            <div class="flex items-center mb-2">
+                <input type="text" id="query" placeholder="Write your query..."
+                    class="border rounded-md px-3 py-2 w-2/4 mr-2">
+                <button type="button" id="searchButton" onclick="send_query()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+                
+            </div>
+            <div id="selectorContainer">
+              <label class="switch">
+                <input type="checkbox" id="is_boolean" onclick="change_text()">
+                <span class="slider round"></span>
+              </label>
+              <p id="enable_boolean">LSA</p>
+            </div>
+        </form>
+        <div class="divider"></div>
+        <div id="results" class="container mx-auto p-4"></div>
+    </div>
+    <script>
+      
+
+      function send_query() {
+          var is_boolean = document.getElementById("is_boolean").checked;
+          var query = document.getElementById("query").value;
+          console.log(is_boolean)
+          fetch("/hello_function/", {
+                  method: "POST",
+                  headers: {
+                      "Content-Type": "application/json",
+                      "X-CSRFToken": "{{ csrf_token }}"
+                  },
+                  body: JSON.stringify({ 
+                    query: query,
+                    is_boolean: is_boolean
+                   })
+              })
+              .then(Response => Response.json())
+              .then(data => {
+                  var results = data.result
+                  document.getElementById("results").innerHTML = ""
+                    results.forEach(result => {
+                        document.getElementById("results").innerHTML += "<p>" + result +"</p> <br><br>"
+                    });
+
+                });
+              
+      }
+      function change_text(){
+        var is_boolean = document.getElementById("is_boolean").checked;
+        if(is_boolean){
+          document.getElementById("enable_boolean").innerText = "Boolean"
+        }
+        else{
+          document.getElementById("enable_boolean").innerText = "LSA"
+          
+        }
+      }
+
+      function ImprimirConsulta() {
+          fetch("/result/")
+              .then(Response => Response.json())
+              .then(data => {
+                  document.getElementById("resultados").innerText = "PENAPENEPENIPENOPENU";
+              });
+      }
+  </script>
+
+</body>
+
 </html>
