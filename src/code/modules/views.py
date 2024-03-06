@@ -29,18 +29,18 @@ def finder(request):
     }
     return render(request, 'finder.html', context)
 
-def hello_function(request):
+def get_docs(request):
     global data_words, data_docs
     if request.method == 'POST':
         data = json.loads(request.body)
         query = data.get('query','')
         is_boolean = data.get('is_boolean','')
         if is_boolean:
-            result = boolean.get_matching_docs(query,data_words,data_docs)[0]
-            print(result)
+            result = [tup[0] for tup in boolean.get_matching_docs(query,data_words,data_docs)]
+            
         else: 
             result = [tup[0] for tup in query_lsi.query_lsi(query, data_words, data_docs)]
-            print(result)
+            
         return JsonResponse({'result':result})
     else: 
         return HttpResponse(status=400)
