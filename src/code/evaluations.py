@@ -64,7 +64,7 @@ def metrics():
     thread1.start()
 
     thread2 = threading.Thread(target=model, 
-                               args=(queries, range(1, len(queries) + 1), data_words, data_docs, boolean.get_docs_from_ids, bool_metric))
+                               args=(queries, range(1, len(queries) + 1), data_words, data_docs, boolean.get_matching_docs, bool_metric))
     thread2.start()
 
     thread1.join()
