@@ -1,0 +1,9 @@
+numpy
+regex
+spacy
+nltk
+sympy
+ir_datasets
+django
+scikit-learn
+operator
