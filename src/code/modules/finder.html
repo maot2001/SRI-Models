@@ -115,7 +115,7 @@ body{
                 <input type="checkbox" id="is_boolean" onclick="change_text()">
                 <span class="slider round"></span>
               </label>
-              <p id="enable_boolean">LSA</p>
+              <p id="enable_boolean">Boolean</p>
             </div>
         </form>
         <div class="divider"></div>
@@ -153,10 +153,10 @@ body{
       function change_text(){
         var is_boolean = document.getElementById("is_boolean").checked;
         if(is_boolean){
-          document.getElementById("enable_boolean").innerText = "Boolean"
+          document.getElementById("enable_boolean").innerText = "LSA"
         }
         else{
-          document.getElementById("enable_boolean").innerText = "LSA"
+          document.getElementById("enable_boolean").innerText = "Boolean"
           
         }
       }
