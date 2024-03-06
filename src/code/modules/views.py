@@ -1,6 +1,8 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.http import JsonResponse
+from evaluations import model
+import threading
 import json
 import os
 import sys
@@ -38,3 +40,32 @@ def hello_function(request):
     
 def result(request):
     return JsonResponse({"result":"hello"})
+
+def metrics(request):
+    """
+    Automatic queries and metrics collection
+    """
+    data_words = utils.json_to_words()
+    data_docs = utils.json_to_doc()
+
+    route = os.getcwd()
+    route = os.path.join(route, 'data')
+
+    with open(os.path.join(route, 'queries.json'), "r") as file:
+        queries=json.load(file)
+    bool_metric = [[] for i in range(5)]
+
+    lsi_metric = [[] for i in range(5)]
+    bool_metric = [[] for i in range(5)]
+    thread1 = threading.Thread(target=model, 
+                               args=(queries, range(1, len(queries) + 1), data_words, data_docs, query_lsi.query_lsi, lsi_metric))
+    thread1.start()
+
+    thread2 = threading.Thread(target=model, 
+                               args=(queries, range(1, len(queries) + 1), data_words, data_docs, boolean.get_matching_docs, bool_metric))
+    thread2.start()
+
+    thread1.join()
+    thread2.join()
+
+    return JsonResponse({'boolean':bool_metric, 'lsi':lsi_metric})

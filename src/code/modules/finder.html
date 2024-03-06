@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -6,6 +7,19 @@
     <title>SRI-Models</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
+        canvas {
+          max-width: 90%;
+          max-height: 400px;
+          margin-left: 5%;
+          margin-top: 2%;
+        }
+
+        #graphics {
+          display: grid;
+          text-align: center;
+          gap: 3%;
+        }
+
         #searchButton {
             display: flex;
             align-items: center;
@@ -18,6 +32,15 @@
         #selectorContainer {
             margin-top: 20px; /* Ajusta el margen según sea necesario */
         }
+
+        .nav-icons {
+            background: #2196F3;
+            border-radius: 1rem;
+            box-shadow: #6db5f0 0px 1px 25px;
+            width: 110%;
+            height: 110%;
+        }
+
         .switch {
   position: relative;
   display: inline-block;
@@ -89,6 +112,10 @@ body{
   margin: 20px 0;
   width: 100%;
 }
+
+.gaper {
+  gap: 1%;
+}
     </style>
 </head>
 
@@ -99,7 +126,7 @@ body{
         </div>
         <form id="Query" class="mb-4">
             {% csrf_token %}
-            <div class="flex items-center mb-2">
+            <div class="flex items-center mb-2 gaper">
                 <input type="text" id="query" placeholder="Write your query..."
                     class="border rounded-md px-3 py-2 w-2/4 mr-2">
                 <button type="button" id="searchButton" onclick="send_query()">
@@ -107,6 +134,12 @@ body{
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
+                </button>
+
+                <button type="button" onclick="metrics()">
+                  <div class="nav-icons">
+                    <h2>Métricas</h2>
+                  </div>
                 </button>
                 
             </div>
@@ -121,8 +154,12 @@ body{
         <div class="divider"></div>
         <div id="results" class="container mx-auto p-4"></div>
     </div>
+
+    <div id="graphics"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-      
+      const labels = []
 
       function send_query() {
           var is_boolean = document.getElementById("is_boolean").checked;
@@ -148,8 +185,8 @@ body{
                     });
 
                 });
-              
       }
+
       function change_text(){
         var is_boolean = document.getElementById("is_boolean").checked;
         if(is_boolean){
@@ -167,6 +204,88 @@ body{
               .then(data => {
                   document.getElementById("resultados").innerText = "PENAPENEPENIPENOPENU";
               });
+      }
+
+      function metrics() {
+        fetch("/metrics/", {
+                  method: "POST",
+                  headers: {
+                      "Content-Type": "application/json",
+                      "X-CSRFToken": "{{ csrf_token }}"
+                  }
+            })
+              .then(Response => Response.json())
+              .then(data => {
+                  for (let i = 0; i < data.lsi[0].length; i++) {
+                    labels[i] = i
+                  }
+                  document.getElementById('graphics').innerHTML = 
+                  "<div><h2>Modelo Booleano</h2><canvas id='precision_b'></canvas><canvas id='recall_b'></canvas>" + 
+                  "<canvas id='r_precision_b'></canvas><canvas id='f_value_b'></canvas><canvas id='faillure_b'></canvas></div>" + 
+                  "<div><h2>Indexación de Semántica Latente</h2><canvas id='precision_l'></canvas><canvas id='recall_l'></canvas>" + 
+                  "<canvas id='r_precision_l'></canvas><canvas id='f_value_l'></canvas><canvas id='faillure_l'></canvas></div>"
+                  
+                  precision = data.boolean[0]
+                  recall = data.boolean[1]
+                  r_precision = data.boolean[2]
+                  f_value = data.boolean[3]
+                  faillure = data.boolean[4]
+
+                  graph('precision_b', precision, '#0ae83d')
+                  graph('recall_b', recall, '#0ae83d')
+                  graph('r_precision_b', r_precision, '#235de5')
+                  graph('f_value_b', f_value, '#235de5')
+                  graph('faillure_b', faillure, '#e62929')
+
+                  precision = data.lsi[0]
+                  recall = data.lsi[1]
+                  r_precision = data.lsi[2]
+                  f_value = data.lsi[3]
+                  faillure = data.lsi[4]
+
+                  graph('precision_l', precision, '#0ae83d')
+                  graph('recall_l', recall, '#0ae83d')
+                  graph('r_precision_l', r_precision, '#235de5')
+                  graph('f_value_l', f_value, '#235de5')
+                  graph('faillure_l', faillure, '#e62929')
+        }); 
+      }
+
+      function graph(id, vals, color) {
+        let sum = vals.reduce((acc, current) => acc + current, 0)
+        let average = sum / vals.length
+        let title = id.slice(0, -2) + " (media = " + average.toFixed(2) + ")"
+        const config = {
+                type: 'line',
+                data: {
+                        datasets: [{
+                        data: vals,
+                        borderColor: color,
+                        tension: .5,
+                        pointBorderWidth: 2,
+                        fill: false
+                        }],
+                        labels: labels
+                    },
+                options: {
+                    plugins: {
+                    legend: {
+                        display: false,
+                    },
+                    title: {
+                        display: true,
+                        text: title
+                    }
+                  },
+                  scales: {
+                    y: {
+                      min: 0,
+                      max: 1,
+                    }
+                  }
+                },
+            };
+            new Chart(id, config)
       }
   </script>
 

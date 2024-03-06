@@ -1,9 +1,5 @@
 import json
 import os
-import query_lsi
-import utils
-import threading
-import boolean
 Corpus_Len=1400
 
 # Metrics
@@ -25,9 +21,9 @@ def f_measure(prec, rec):
 
 def r_precision(relevants, recovered):
     r = len(relevants)
-    if len(relevants) <= r:
-        return len(set(recovered).intersection(relevants)) / len(relevants)
-    return len(set(recovered).intersection(relevants[:r])) / r
+    if len(recovered) <= r:
+        return len(set(recovered).intersection(set(relevants))) / len(relevants)
+    return len(set(recovered[:r]).intersection(set(relevants))) / r
 
 def failure_ratio(relevants, recovered):
     docs_irrelevant_recovered = set(recovered) - set(relevants)
@@ -42,33 +38,6 @@ def model(queries, indexes, data_words, data_docs, method, metric):
         result = method(query, data_words, data_docs)
         values = Evaluations(result, i)
         for i in range(5): metric[i].append(values[i])
-
-def metrics():
-    """
-    Automatic queries and metrics collection
-    """
-    data_words = utils.json_to_words()
-    data_docs = utils.json_to_doc()
-
-    route = os.getcwd()
-    route = os.path.join(route, 'data')
-
-    with open(os.path.join(route, 'queries.json'), "r") as file:
-        queries=json.load(file)
-    bool_metric = [[] for i in range(5)]
-
-    lsi_metric = [[] for i in range(5)]
-    bool_metric = [[] for i in range(5)]
-    thread1 = threading.Thread(target=model, 
-                               args=(queries, range(1, len(queries) + 1), data_words, data_docs, query_lsi.query_lsi, lsi_metric))
-    thread1.start()
-
-    thread2 = threading.Thread(target=model, 
-                               args=(queries, range(1, len(queries) + 1), data_words, data_docs, boolean.get_matching_docs, bool_metric))
-    thread2.start()
-
-    thread1.join()
-    thread2.join()
 
 
 def Evaluations(docs, index):
@@ -102,5 +71,3 @@ def Evaluations(docs, index):
         failure_value=failure_ratio(relevants,docs_id)
         return [ precision_value, recall_value, r_precision_value, f_value, failure_value ]
     return None
-
-metrics()
