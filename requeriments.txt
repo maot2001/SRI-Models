@@ -7,3 +7,4 @@ ir_datasets
 django
 scikit-learn
 operator
+python -m spacy download en_core_web_sm
