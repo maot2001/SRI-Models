@@ -18,7 +18,9 @@ El modelo implementado es un sistema de recomendación basado en la técnica de 
 ## Explicación de cómo ejecutar el proyecto:
 1. Clonar este repositorio en tu máquina.
 2. Instalar las dependencias del proyecto utilizando el archivo requirements.txt: `pip install -r requirements.txt`.
-3. Seguir los pasos que indica el archivo `startup.md`.
+3. Ejecutar el archivo startup:
+- .bat Para el trabajo con OS Windows 
+- .sh Para el trabajo con OS Unix, Linux, MacOs
 4. Seguir las instrucciones en la interfaz de usuario para interactuar con el sistema de recuperación.
 
 ## Definición de la consulta:
