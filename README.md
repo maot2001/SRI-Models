@@ -3,7 +3,7 @@ Proyecto de Sistema de Recuperación de Información:
 
 ## Autores:
 - Marco Antonio Ochil Trujillo C-412
-- Jan Carlos Perez Lorenzo C-412
+- Jan Carlos Perez González C-412
 - Kevin Majim Ortega Alvarez C-412
 
 ## Definición del modelo de SRI implementado:
