@@ -79,8 +79,17 @@ def add_and_between_words(phrase):
     new_phrase = []
     for i in range(len(phrase) - 1):
         new_phrase.append(phrase[i])
-        if phrase[i] != "and" and phrase[i] != "or" and phrase[i]!="not" and phrase[i + 1] != "and" and phrase[i + 1] != "or":
+        if phrase[i] != "and" and phrase[i] != "or" and phrase[i]!="not" and phrase[i] != "("  and phrase[i + 1] != "and" and phrase[i + 1] != "or" and phrase[i + 1] != ")":
             new_phrase.append("and")
     new_phrase.append(phrase[-1])
     return new_phrase
 
+def delete_parentheses(phrase):
+    new_phrase = []
+    error = False
+    for i in range(len(phrase)):
+        if phrase[i] == "(" and phrase[i+1] == ")": error = True
+        elif error: error = False
+        else: new_phrase.append(phrase[i])
+    return new_phrase
+            

@@ -7,6 +7,9 @@ import nltk
 import itertools
 from sympy import sympify,simplify,  to_dnf, Not, And, Or, logic
 nlp = spacy.load("en_core_web_sm")
+
+bads = ['composite', 'solve', 'factor', 'invert', 'ring', 'shape', 'round', 'integrate', 'field', 'series', 'use', 'limit', 'degree',
+         'product', 'test', 'trailing', 'input', 'simplify', 'apart', 'minimum', 'refine', 'maximum']
 def process_query(query):
   processed_query = ""
   for i in query:
@@ -29,16 +32,16 @@ def query_to_dnf(query):
     Returns:
         sympify: DNF query
     """
-    query = [token.lemma_.lower() for token in nlp(query) if token.is_alpha or token.text=='(' or token.text ==')']
-    print(query)
+    query = [token.lemma_.lower() for token in nlp(query) if token.text=='(' or token.text ==')' or token.text=='and' or \
+             token.text=='or' or token.text=='not' or (token.is_alpha and not token.is_stop and not token.lemma_.lower() in bads)]
     try:
         processed_query = process_query(query)
         query_expr = sympify(processed_query, evaluate=False)
     except:
-        new_query = add_and_between_words(query)
+        new_query = add_and_between_words(delete_parentheses(query))
         processed_query = process_query(new_query)
-        query_expr = simplify(processed_query, evaluate=False)
-    query_dnf = to_dnf(query_expr, simplify=True, force=True)
+        query_expr = sympify(processed_query, evaluate=False)
+    query_dnf = to_dnf(query_expr, simplify=False, force=True)
 
     return query_dnf
 
@@ -53,12 +56,9 @@ def get_clean_query(query_dnf):
         list<list<str>>: list with all conjuntive clauses
     """
     #return a tuple, if tup[0]=='' then is a single word else is an expression between parenthesis
-    print(query_dnf)
     query_dnf = str(query_dnf).lower()
     tup_query = re.findall(r'\((.*?)\)|(~?\w+)', query_dnf)
-    print(tup_query)
     conjuntive_query = [re.split(r'\s*&\s*', clause[0]) if clause[0] else [clause[1]] for clause in tup_query]
-    print(conjuntive_query)
     return conjuntive_query
 
 def get_matching_docs_by_index(query, data_words):
@@ -70,7 +70,6 @@ def get_matching_docs_by_index(query, data_words):
     """
     matching_docs = []
     conjuntive_query = get_clean_query(query_to_dnf(query))
-    print(conjuntive_query)
     all_docs = []
     for clause in conjuntive_query:
         for item in clause:
@@ -84,8 +83,6 @@ def get_matching_docs_by_index(query, data_words):
                     matching_docs.append(list(difference_set))
                 except StopIteration:
                     set_docs = [i for i in range(0,1400)]
-                    print("is here")
-                    print(set_docs)
                     matching_docs.append(list(set_docs))
             else:
                 try:
@@ -116,10 +113,8 @@ def get_matching_docs(query, data_words, data_docs):
     """
     ids = get_matching_docs_by_index(query, data_words)
     if len(ids) == 0:
-        return ([],[])
-    names = []
-    true_ids = []
+        return []
+    result = []
     for id in ids:
-        names.append(data_docs[id].name)
-        true_ids.append(data_docs[id].id)
-    return (names, true_ids)
+        result.append((data_docs[id].name, data_docs[id].id))
+    return result

@@ -52,6 +52,8 @@ def Evaluations(docs, index):
     dict(metrics): Values of metrics
 
     """
+    if len(docs) == 0:
+        return [0, 0, 0, 0, 0]
     docs_id=[tuple[1] for tuple in docs]
 
     route = os.getcwd()

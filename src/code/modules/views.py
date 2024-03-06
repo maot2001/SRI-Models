@@ -1,7 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.http import JsonResponse
-from evaluations import model
 import threading
 import json
 import os
@@ -13,6 +12,7 @@ import boolean
 import utils
 import query_lsi
 import create_database
+from evaluations import model
 
 data_words = utils.json_to_words()
 data_docs = utils.json_to_doc()
@@ -64,6 +64,7 @@ def metrics(request):
 
     lsi_metric = [[] for i in range(5)]
     bool_metric = [[] for i in range(5)]
+
     thread1 = threading.Thread(target=model, 
                                args=(queries, range(1, len(queries) + 1), data_words, data_docs, query_lsi.query_lsi, lsi_metric))
     thread1.start()
