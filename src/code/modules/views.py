@@ -12,11 +12,18 @@ sys.path.append(prev_route)
 import boolean
 import utils
 import query_lsi
+import create_database
 
 data_words = utils.json_to_words()
 data_docs = utils.json_to_doc()
 
 def finder(request):
+    route = os.getcwd()
+    route = os.path.join(route, 'data')
+    lista_archivos = os.listdir(route)
+    if len(lista_archivos)==0:
+        create_database.Charge_queries()
+        create_database.Charge_database()
     context = {
         'project_name':'SRI-Models'
     }
